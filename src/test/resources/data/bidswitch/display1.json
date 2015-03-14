@@ -1,0 +1,12 @@
+{"id":"64916312-96fc-4e20-802a-e6c7f2e3936e","user":{"buyeruid":"rB4An1ZS8bQe3Xvh/GigAg","ext":
+{"ug":1},"id":"c53315c4-b7bd-4a10-b426-7833bf2a782a"},"tmax":90,"cur":["USD"],"wseat":["89"],
+"bcat":["BSW1","BSW4","BSW10","IAB25-3","BSW2","IAB26"],"imp":[{"bidfloor":0.0112320,"bidfloorcur":"USD","instl":0,"tagid":"pubmatic_405906","banner":
+{"battr":[3,1,10,9,8,14,11],"pos":3,"w":300,"h":250,"topframe":1,"btype":[1]}
+,"ext":{"exp":300},"id":"1"}],"site":{"domain":"mb.jorudan.co.jp","id":"pubmatic_116310",
+"ref":"http://mb.jorudan.co.jp/os/norikae.cgi?ref=pc&c=10&p=0&f=<96>ڍ<95>&t=<91><E5><8D><E8>&bg=1",
+"publisher":{"name":"","id":"pubmatic_63999"}
+,"ext":{},"page":"http://mb.jorudan.co.jp/"},"device":{"ua":
+"Mozilla/5.0 (Linux; Android 4.4.4; C6802 Build/14.4.A.0.108) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/47.0.2526.83 MobileSafari/537.36",
+"ip":"49.239.72.114","geo":{"city":"Tokyo","zip":"100-0001","region":"40","country": "JP"}
+,"js":1,"osv":"4","make":"Sony","os":"Android","language":"ja"},"ext":
+{"ssp":"pubmatic","wt":15.48148148148148,"clktrkrq":0},"at":2}

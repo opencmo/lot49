@@ -1,0 +1,128 @@
+package com.enremmeta.rtb.test.cases;
+
+import java.util.Map;
+
+import javax.ws.rs.BadRequestException;
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.client.Invocation.Builder;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.MultivaluedMap;
+import javax.ws.rs.core.NewCookie;
+import javax.ws.rs.core.Response;
+
+import org.junit.Assert;
+import org.junit.Test;
+
+import com.enremmeta.rtb.constants.Lot49Constants;
+import com.enremmeta.rtb.proto.adaptv.AdaptvAdapter;
+
+/**
+ * Tests Adap.TV
+ *
+ * @author Gregory Golberg (grisha@alum.mit.edu)
+ * 
+ *         Copyright © <a href="http://www.enremmeta.com">Enremmeta LLC</a> 2014. All Rights
+ *         Reserved. 
+ *
+ */
+public class AdaptvTest extends ExchangeTest {
+    @Test
+    public void xtestAdaptv() {
+        try {
+
+            // http://localhost:10000/auction/adaptv?buid=pushkin&viewability=VIEWABLE&formats=swf&pid=3141&ptype=INSTREAM&ua=firefox&psize=MEDIUM&apd=TABLET&md=60&pquality=professional&lang=en&vpaidp=true&comp=&mp=&pname=placement&idfa=123&ip=18.18.18.18&ai=UI&wrapperp=false&an=&url=http://www.cnn.com&cats=news,sports&deals=&domain=www.cnn.com&andid=123&rcats=&aid=99999&audiop=false
+            String url = "http://localhost:10000" + Lot49Constants.ROOT_PATH_AUCTIONS + "/"
+                            + Lot49Constants.EXCHANGE_ADAPTV + "?";
+            String qs = "";
+
+            for (String param : AdaptvAdapter.ADAPTV_PARAMS_TO_MACROS.keySet()) {
+                String macro = AdaptvAdapter.ADAPTV_PARAMS_TO_MACROS.get(param);
+                String kv = param + "=" + macro;
+                if (qs.length() > 0) {
+                    qs += "&";
+                }
+                qs += kv;
+            }
+
+            url = url + qs;
+
+            System.out.println("Sending request to " + url);
+
+            Client client = ClientBuilder.newClient();
+            Builder builder = client.target(url).request().accept(MediaType.APPLICATION_XML);
+            System.out.println("Sending request to " + url);
+            try {
+                Response resp = builder.get();
+                Object entity = resp.getEntity();
+            } catch (BadRequestException bre) {
+                MultivaluedMap<String, Object> headers = bre.getResponse().getHeaders();
+                for (String key : headers.keySet()) {
+                    System.out.println(key + ": " + headers.get(key));
+                }
+                throw bre;
+            }
+
+            // System.out.println(seatBids);
+        } catch (Exception e) {
+            e.printStackTrace();
+            Assert.fail(e.getMessage());
+        }
+    }
+
+
+    public void testAdaptvBadUserCorrectable() {
+        try {
+
+            // http://localhost:10000/auction/adaptv?buid=pushkin&viewability=VIEWABLE&formats=swf&pid=3141&ptype=INSTREAM&ua=firefox&psize=MEDIUM&apd=TABLET&md=60&pquality=professional&lang=en&vpaidp=true&comp=&mp=&pname=placement&idfa=123&ip=18.18.18.18&ai=UI&wrapperp=false&an=&url=http://www.cnn.com&cats=news,sports&deals=&domain=www.cnn.com&andid=123&rcats=&aid=99999&audiop=false
+            String url = "http://localhost:10000" + Lot49Constants.ROOT_PATH_AUCTIONS + "/"
+                            + Lot49Constants.EXCHANGE_ADAPTV + "?";
+            String qs = "buid=CtQHDFUTIbEyfwTqJkehAg%2525252525252525252525252525252525252525252525252525252525253D%2525252525252525252525252525252525252525252525252525252525253D&vpaidp=1&formats=swf";
+
+            url = url + qs;
+
+            System.out.println("Sending request to " + url);
+
+            Client client = ClientBuilder.newClient();
+            Builder builder = client.target(url).request().accept(MediaType.APPLICATION_XML);
+            System.out.println("Sending request to " + url);
+            String impUrl = null;
+            try {
+                String resp = builder.get(String.class);
+
+                System.out.println(resp);
+                String lookFor = "<Impression id=\"imp1\"><![CDATA[";
+                int idx1 = resp.indexOf(lookFor) + lookFor.length();
+                int idx2 = resp.indexOf("]]>", idx1);
+                impUrl = resp.substring(idx1, idx2);
+                impUrl = impUrl.replace(new AdaptvAdapter().getWinningPriceMacro(), "100");
+
+            } catch (BadRequestException bre) {
+                MultivaluedMap<String, Object> headers = bre.getResponse().getHeaders();
+                for (String key : headers.keySet()) {
+                    System.out.println(key + ": " + headers.get(key));
+                }
+                throw bre;
+            }
+            System.out.println("Impression URL:\n\t" + impUrl);
+
+            Response impResponse = client.target(impUrl).request().get();
+            int status = impResponse.getStatus();
+            System.out.println("Status: " + status);
+            String impBody = impResponse.readEntity(String.class);
+            System.out.println("Imp body:\n\t" + impBody);
+            Map<String, NewCookie> cookies = impResponse.getCookies();
+            // TODO this test really should deal with cookies...
+            // I wonder what the current metric is... Code coverage is beyond...
+            System.out.println("Cookies:\n\t" + cookies);
+            MultivaluedMap<String, Object> headers = impResponse.getHeaders();
+            for (String key : headers.keySet()) {
+                System.out.println(key + ": " + headers.get(key));
+            }
+            // System.out.println(seatBids);
+        } catch (Exception e) {
+            e.printStackTrace();
+            Assert.fail(e.getMessage());
+        }
+    }
+}

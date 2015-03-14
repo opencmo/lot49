@@ -1,0 +1,77 @@
+package com.enremmeta.rtb.test.cases;
+
+import static org.junit.Assert.fail;
+
+import java.util.List;
+
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.client.Invocation.Builder;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.xml.parsers.DocumentBuilderFactory;
+
+import org.junit.Test;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+
+import com.amazonaws.util.StringInputStream;
+import com.enremmeta.rtb.constants.Lot49Constants;
+import com.enremmeta.rtb.constants.RtbConstants;
+import com.enremmeta.rtb.jersey.protobuf.ProtobufMessageReader;
+import com.enremmeta.rtb.jersey.protobuf.ProtobufMessageWriter;
+import com.enremmeta.rtb.proto.brx.BrxAdapter;
+import com.enremmeta.rtb.proto.brx.BrxRtb095;
+import com.enremmeta.rtb.proto.brx.BrxRtb095.BidRequest;
+import com.enremmeta.rtb.proto.brx.BrxRtb095.BidResponse;
+import com.enremmeta.rtb.proto.brx.BrxRtb095.BidResponse.Bid;
+import com.enremmeta.rtb.proto.brx.BrxRtb095.BidResponse.SeatBid;
+import com.enremmeta.util.Utils;
+
+public class BrxTest extends ExchangeTest {
+
+    @Test
+    public void testWebRequest() {
+        try {
+            String winPriceMacro = new BrxAdapter().getWinningPriceMacro();
+            BidRequest req = (BidRequest) getProtobufObject("brx_web_request.json",
+                            BrxRtb095.BidRequest.newBuilder());
+            Client client = ClientBuilder.newClient().register(ProtobufMessageReader.class)
+                            .register(ProtobufMessageWriter.class);
+            String url = testUtils.getConfig().getBaseUrl() + Lot49Constants.ROOT_PATH_AUCTIONS
+                            + "/" + Lot49Constants.EXCHANGE_BRX;
+            Builder builder = client.target(url).request(MediaType.APPLICATION_OCTET_STREAM)
+                            .accept(MediaType.APPLICATION_OCTET_STREAM)
+                            .header("X-OPENRTB-VERSION", "2.1").header("X-BR-RTB-VERSION", "2");
+            System.out.println("Sending request to " + url);
+            BidResponse resp = builder.post(Entity.entity(req, MediaType.APPLICATION_OCTET_STREAM),
+                            BidResponse.class);
+            List<SeatBid> seatBids = resp.getSeatbidList();
+            for (SeatBid seatBid : seatBids) {
+                List<Bid> bids = seatBid.getBidList();
+                for (Bid bid : bids) {
+                    String nurl = bid.getNurl();
+                    assert nurl != null;
+                    assert nurl.indexOf(winPriceMacro) > -1;
+                    nurl = nurl.replace(winPriceMacro,
+                                    String.valueOf(Utils.cpmToMicro(bid.getPrice() / 2)));
+                    String nurlResp = client.target(nurl).request().get(String.class);
+                    Document vast = DocumentBuilderFactory.newInstance().newDocumentBuilder()
+                                    .parse(new StringInputStream(nurlResp));
+                    Node impNode = vast.getElementsByTagName("Impression").item(0);
+                    String impUrl = impNode.getTextContent();
+
+                    Response impResp = client.target(impUrl).request().get();
+                    assert 200 == impResp.getStatus();
+                }
+            }
+            System.out.println(seatBids);
+            assert (seatBids.size() == 1);
+        } catch (Exception e) {
+            e.printStackTrace();
+            fail(e.getMessage());
+        }
+
+    }
+}

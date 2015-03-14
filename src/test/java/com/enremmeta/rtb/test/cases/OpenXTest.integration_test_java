@@ -1,0 +1,228 @@
+package com.enremmeta.rtb.test.cases;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+import javax.ws.rs.BadRequestException;
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.client.Invocation.Builder;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.MultivaluedMap;
+import javax.ws.rs.core.Response;
+
+import org.glassfish.jersey.message.internal.OutboundJaxrsResponse;
+import org.junit.Assert;
+import org.junit.Test;
+
+import com.enremmeta.rtb.api.proto.openrtb.OpenRtbRequest;
+import com.enremmeta.rtb.api.proto.openrtb.OpenRtbResponse;
+import com.enremmeta.rtb.constants.Lot49Constants;
+import com.enremmeta.rtb.jersey.AuctionsSvc;
+import com.enremmeta.rtb.test.utils.FakeAsyncResponse;
+import com.enremmeta.util.Utils;
+
+/**
+ * Tests OpenX specific stuff. Man, this whole JUnit stuff has changed in an annoying way.
+ * 
+ *
+ * @author Gregory Golberg (grisha@alum.mit.edu)
+ * 
+ *         Copyright © <a href="http://www.enremmeta.com">Enremmeta LLC</a> 2014. All Rights
+ *         Reserved. 
+ *
+ */
+public class OpenXTest extends ExchangeTest {
+
+    /**
+     * Test from http://buyer.openxadexchange.com/#/account?tab=ad_exchange_realtime_bid
+     * &account_id=20037585-accf-fff1-8123-69534a
+     */
+    // @Test
+    public void xtestRequestFromRtbSettingsPage() {
+        try {
+            File f = getTestDataFile("openx_req.json");
+            String req = loadContents(f);
+
+            String url = testUtils.getConfig().getBaseUrl() + Lot49Constants.ROOT_PATH_AUCTIONS
+                            + "/" + Lot49Constants.EXCHANGE_OPENX;
+
+            System.out.println("Sending request to " + url);
+            Client client = ClientBuilder.newClient();
+            Builder builder = client.target(url).request(MediaType.APPLICATION_JSON)
+                            .accept(MediaType.APPLICATION_JSON);
+            System.out.println("Sending request to " + url);
+            try {
+                OpenRtbResponse resp = builder.post(Entity.entity(req, MediaType.APPLICATION_JSON),
+                                OpenRtbResponse.class);
+            } catch (BadRequestException bre) {
+                MultivaluedMap<String, Object> headers = bre.getResponse().getHeaders();
+                for (String key : headers.keySet()) {
+                    System.out.println(key + ": " + headers.get(key));
+                }
+                throw bre;
+            }
+
+            // System.out.println(seatBids);
+        } catch (Exception e) {
+            e.printStackTrace();
+            Assert.fail(e.getMessage());
+        }
+    }
+
+    // @Test
+    public void xtestResults() {
+        try {
+            File f = getTestDataFile("openx_results.json");
+            BufferedReader br;
+
+            br = new BufferedReader(new FileReader(f));
+
+            Client client = ClientBuilder.newClient();
+
+            while (true) {
+                String req = br.readLine();
+                if (req == null) {
+                    break;
+                }
+
+                String url = testUtils.getConfig().getStatsUrl() + Lot49Constants.ROOT_PATH_AUCTIONS
+                                + "/" + Lot49Constants.AUCTION_RESULTS_PATH_OPENX;
+
+                System.out.println("Sending " + req + " to " + url);
+                Builder builder = client.target(url).request(MediaType.APPLICATION_JSON)
+                                .accept(MediaType.APPLICATION_JSON);
+                System.out.println("Sending request to " + url);
+                try {
+                    Response resp = builder.post(Entity.entity(req, MediaType.APPLICATION_JSON));
+                    Map headers = resp.getHeaders();
+                    for (Object hkey : headers.keySet()) {
+                        System.out.println(hkey + ": " + headers.get(hkey));
+                    }
+                    System.out.println(resp);
+                } catch (BadRequestException bre) {
+                    System.out.println(bre);
+                }
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+
+            org.junit.Assert.fail(e.getMessage());
+        }
+    }
+
+    /**
+     * Some private thingies.
+     */
+    // @Test
+    public void xtestUserParseBugOB330() {
+        try {
+            File f = getTestDataFile("openx_req.json");
+            String req = loadContents(f);
+            OpenRtbRequest reqObj = Utils.MAPPER.readValue(req, OpenRtbRequest.class);
+
+            String logContents = loadContents(getTestDataFile("bug-ob-330.txt"));
+            String[] logLines = logContents.split("\n");
+            List<String> decodedIds = new ArrayList<String>(logLines.length);
+            for (String line : logLines) {
+                String entries[] = line.split("\t");
+                String customData = entries[2];
+                reqObj.getUser().setCustomdata(customData);
+                AuctionsSvc auctionSvc = new AuctionsSvc();
+                FakeAsyncResponse resp = new FakeAsyncResponse();
+                auctionSvc.onOpenX(resp, null, reqObj, "", null, null, "true");
+
+                while (true) {
+                    if (resp.isDone()) {
+                        break;
+                    }
+                    Thread.sleep(100);
+
+                }
+                Object response = resp.getPayload();
+                if (response instanceof Throwable) {
+                    Throwable tresp = (Throwable) response;
+                    System.out.println(tresp);
+                } else if (response instanceof OutboundJaxrsResponse) {
+                    OutboundJaxrsResponse ojr = (OutboundJaxrsResponse) response;
+                    Assert.assertTrue(ojr.getStatus() == 500);
+
+                    String decodedId = reqObj.getUser().getBuyeruid();
+                    String encId = "";
+                    try {
+                        encId = Utils.logToCookieModUid(decodedId);
+                    } catch (Throwable e) {
+                        Assert.fail("Error encoding " + decodedId + ": " + e);
+                    }
+                    Assert.assertTrue("Ensuring " + encId + " is in " + customData,
+                                    customData.contains(encId) || customData.replace(" ", "+")
+                                                    .contains(encId.replace(" ", "+")));
+
+                } else {
+                    // This is unexpected, we expect at least an error where the
+                    // Bidder isntance is not available.
+                    Assert.fail("Unexpected " + response);
+                }
+
+                // System.out.println(resp.getPayload());
+
+            }
+            int decodedSize = decodedIds.size();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            Assert.fail(e.getMessage());
+        }
+    }
+
+    /**
+     * Some private thingies.
+     */
+    @Test
+    public void testSessionsOB() {
+        try {
+            File f = getTestDataFile("eligible.txt");
+            BufferedReader br = new BufferedReader(new FileReader(f));
+            while (true) {
+                String reqLine = br.readLine();
+                if (reqLine == null) {
+                    break;
+                }
+
+                String reqElts[] = reqLine.split("\t");
+                String req = reqElts[3];
+                // OpenRtbRequest reqObj = Helpers.MAPPER
+                // .readValue(req, OpenRtbRequest.class);
+                String url = testUtils.getConfig().getBaseUrl() + Lot49Constants.ROOT_PATH_AUCTIONS
+                                + "/" + Lot49Constants.EXCHANGE_OPENX;
+
+                System.out.println("Sending request to " + url);
+                Client client = ClientBuilder.newClient();
+                Builder builder = client.target(url).request(MediaType.APPLICATION_JSON)
+                                .accept(MediaType.APPLICATION_JSON);
+                System.out.println("Sending " + req + " to " + url);
+                Response resp = builder.post(Entity.entity(req, MediaType.APPLICATION_JSON));
+
+                if (resp.getStatus() >= 300) {
+                    MultivaluedMap<String, Object> headers = resp.getHeaders();
+                    for (String key : headers.keySet()) {
+                        System.out.println(key + ": " + headers.get(key));
+                    }
+                    System.out.println("*");
+                } else {
+                    System.out.println(resp);
+                }
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            Assert.fail(e.getMessage());
+        }
+    }
+}

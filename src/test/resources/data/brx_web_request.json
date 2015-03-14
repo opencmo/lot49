@@ -1,0 +1,57 @@
+{
+"id": "adop82QlCRtT8AOq1BTm_nfPEKNig",
+"tmax": 90,
+"imp" : {
+  "id": "1",
+  "video" : {
+    mimes: "FLV",
+    mimes: "SHOCKWAVE_FLASH",
+    linearity: "LINEAR",
+    minduration: 5,
+    maxduration: 60,
+    protocol: "VAST_2_0",
+    protocol: "VAST_WRAPPER_2_0",
+    api: "VPAID_1_0",
+    w: 640,
+    h: 480,
+    startdelay: 0,
+    maxbitrate: 600,
+    playbackmethod: "CLICK_TO_PLAY",
+    delivery: "PROGRESSIVE",
+    pos: "ABOVE_THE_FOLD",
+    companiontype: "HTML_RESOURCE",
+    companionad :{
+      w: 300,
+      h: 250,
+      mimes: "JPG",
+      mimes: "PNG",
+      mimes: "GIF"
+    }
+  },
+  instl: false
+},
+site : {
+  id: "3845441",
+  name: "S2S RTB Test",
+  privacypolicy: "YES",
+  ref: "http://cache.btrll.com/jwplayer/v5.7.1864/player.swf",
+  domain: "http://brightroll.com"
+},
+device : {
+  ip: "174.143.232.141",
+  ua: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_7_5) AppleWebKit/537.4 (KHTML, like Gecko) Chrome/22.0.1229.94 Safari/537.4",
+  language: "en"
+},
+user : {
+  id: "3UGsjDg_HGVUBF3PrUg"
+},
+ext  : {
+  is_facebook: false,
+  is_incentivized: "NO",
+  is_syndicated: "NO",
+  is_ugc: "NO",
+  max_wrapper_redirects: 1,
+  inventory_class: "REACH"
+}
+}
+

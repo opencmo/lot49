@@ -1,0 +1,102 @@
+package com.enremmeta.rtb.api;
+
+import java.io.File;
+
+import org.apache.http.HttpResponse;
+import org.apache.http.HttpStatus;
+import org.apache.http.client.config.RequestConfig;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.util.EntityUtils;
+import org.junit.Test;
+
+import com.enremmeta.rtb.api.proto.openrtb.Bid;
+import com.enremmeta.rtb.api.proto.openrtb.OpenRtbResponse;
+import com.enremmeta.rtb.api.proto.openrtb.SeatBid;
+import com.enremmeta.rtb.constants.Lot49Constants;
+import com.enremmeta.rtb.test.cases.Lot49Test;
+import com.enremmeta.util.Utils;
+import com.google.gson.GsonBuilder;
+
+public class FcTest extends Lot49Test {
+
+
+    @Test
+    public void testFc() {
+
+        int timeout = 3000;
+        RequestConfig config = RequestConfig.custom().setConnectTimeout(timeout * 1000)
+                        .setConnectionRequestTimeout(timeout * 1000)
+                        .setSocketTimeout(timeout * 1000).build();
+
+        CloseableHttpClient httpClient =
+                        HttpClientBuilder.create().setDefaultRequestConfig(config).build();
+
+        try {
+
+            String auctionUrl = "http://localhost:10000" + Lot49Constants.ROOT_PATH_AUCTIONS + "/"
+                            + Lot49Constants.EXCHANGE_BIDSWITCH;
+            HttpPost httpPost = new HttpPost(auctionUrl);
+            httpPost.addHeader("Content-Type", "application/json");
+
+            File jsonFile = getTestDataFile("test_fc_request.json");
+            String jsonString = Utils.readFile(jsonFile);
+            StringEntity params = new StringEntity(jsonString);
+            httpPost.setEntity(params);
+
+
+            HttpResponse httpResponse = httpClient.execute(httpPost);
+
+            assertNotNull(httpResponse);
+            assertEquals(HttpStatus.SC_OK, httpResponse.getStatusLine().getStatusCode());
+
+            String responceString = EntityUtils.toString(httpResponse.getEntity());
+
+            GsonBuilder gsonBuilder = new GsonBuilder();
+            OpenRtbResponse rtbResponse =
+                            gsonBuilder.create().fromJson(responceString, OpenRtbResponse.class);
+
+            assertNotNull(rtbResponse.getBidid());
+            assertNotNull(rtbResponse.getCur());
+            assertNotNull(rtbResponse.getId());
+            assertNotNull(rtbResponse.getSeatbid());
+            assertFalse(rtbResponse.getSeatbid().isEmpty());
+
+            SeatBid seatbid = rtbResponse.getSeatbid().get(0);
+            assertNotNull(seatbid);
+
+            if (seatbid.getBid() != null) {
+                Bid bid = seatbid.getBid().get(0);
+                assertNotNull(bid);
+
+                if (bid.getNurl() != null && !bid.getNurl().trim().isEmpty()) {
+
+                    String nUrl = bid.getNurl().replaceAll("wp=[^&]+", "wp=" + bid.getPrice())
+                                    .replaceAll("ct=[^&]+", "ct=").replaceAll("cte=[^&]+", "cte=");
+
+                    HttpGet httpGet = new HttpGet(nUrl);
+
+                    httpResponse = httpClient.execute(httpGet);
+
+                    assertNotNull(httpResponse);
+                    assertEquals(HttpStatus.SC_OK, httpResponse.getStatusLine().getStatusCode());
+
+                    responceString = EntityUtils.toString(httpResponse.getEntity());
+                    assertNotNull(responceString);
+                } else {
+                    assertNotNull(bid.getAdm());
+                }
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            fail(e.getMessage());
+        }
+
+    }
+
+
+}

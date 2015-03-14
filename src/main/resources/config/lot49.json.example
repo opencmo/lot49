@@ -1,0 +1,62 @@
+
+{
+   "host"                 : "localhost",
+   "port"                 : 10000,
+   "baseUrl"              : "http://localhost:10000/",
+   "winTimeout"           : 30,
+   "timeoutBidProcessing"    : false,
+   "deploy" : "local",
+   "maxMind" : { "city" : "./geo/GeoIP2-City.mmdb",
+                 "connectionType" : "./geo/GeoIP2-ConnectionType.mmdb",
+                 "domain" : "./geo/GeoIP2-Domain.mmdb",
+                 "isp" : "./geo/GeoIP2-ISP.mmdb"
+                 },
+   "monitoring" : {
+   					"type" : "cloudWatch",
+   					  "awsAccessKey"     : ".....",
+            		 "awsSecretKey"     : "......"
+           		  },
+   "logs" : {
+             "logDir"           : "./log",
+             "awsAccessKey"     : ".....",
+             "awsSecretKey"     : "......", 
+             "s3Bucket"         : "mybucket",
+              "maxSize"          : 104857600,
+              "logLevel"        : "DEBUG"       
+            },
+   "executorThreadPoolSize" : 4,
+   "userIdCookie"      : "mycookie",
+   "jettyTracing"      : false,
+   "userDataCache" : { 
+                     "type" : "redis",
+                     "ttl"  :  600,
+                     "heapPercentage" : 80,
+                      "host" : "localhost",
+                      "port" : 6379,
+                      "hazelcast"   : {
+   				                  "awsAccessKey"     : "...",
+            					  "awsSecretKey"     : "..."
+            			 }
+                },
+   "adConfigCache" : {
+                     "type"     : "file",
+                     "ttl" : 600,
+                      "dir" : "../Lot49TargetingConfigs/src"
+                },
+   "pacingCache" : {
+                      "type" : "redis",
+                      "host" : "localhost",
+                      "port" : 6379
+                    },
+  "bidCache" : {
+      "type" : "redis",
+      "host" : "localhost",
+      "port" : 6379
+    },
+   "exchanges" : {  "openx" : 
+   						{ 
+   						"encryptionKey" : "......",
+   						"integrityKey"  : "......"
+   						}
+   				   }
+}

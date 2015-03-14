@@ -1,0 +1,9 @@
+{"id":"40A7559F-0476-4CD3-98AF-AF4081CB6D0F",
+       "tmax" : 600000,
+       "imp":[{"id":"1","tagid":"25613",
+       "banner":{"w":300,"h":250,
+"topframe":0}}],
+"site":{"id":"29490","domain":"http://photobucket.com","page":"http://s1010.photobucket.com/user/jeet_020/media/madhuri-dix.jpg.html","mobile":0,"publisher":{"id":"29489"}},"device":{"ip":"18.18.18.18","ua":"Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/44.0.2403.125 Safari/537.36","carrier":"Virgin Media","language":"en","geo":{"country":"GBR","region":"H4","city":"Leicester","lat":52.6021996,"lon":-1.14919996,"type":2,"zip":"LE2","utcoffset":6},"ext":{"res":"-1x-1","freq":0,"pf":1}},
+"user":{"id":"CEC169B2-A1E1-483E-AED6-F2652AD34457",
+      "buyeruid":"9F001EAC46E4F555591B21910234E1EA",            
+"geo":{"utcoffset":6}}}

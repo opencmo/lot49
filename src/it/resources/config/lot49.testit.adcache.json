@@ -1,0 +1,173 @@
+{
+	"container":"none",
+	"host":"localhost",
+	"dnsCacheTtlSeconds" : 60,
+	"favicon" : "http://s.opendsp.com/man/xchout/",
+	"port":10000,
+	"cookieDomain":"localhost",
+	"baseUrl":"http://localhost:10000",
+	"statsUrl":"http://localhost:10000",
+	"keepAliveTimeoutSeconds":75,
+	"winTimeoutSeconds":30,
+	"debug":true,
+	"orchestrator":{
+		"deployType":"local",
+		"staticNodeId":"macgreg"
+	},
+	"admin":{
+		"username":"opendsp2",
+		"password":"barabule37",
+		"testDataDir":"/opt/lot49/test/data"
+	},
+	"databases":{
+        "redises": {
+            "shortTermRedis": {
+                "host": "localhost",
+                "port": 6379,
+                "poolTtlMinutes": 5
+            }
+        },
+		"dynamodbs":{
+            "dynUserSegments": {
+				"awsAccessKey":"AKIAJBKL6PJRXHDZA5SA",
+				"awsSecretKey":"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",
+                "table": "ucache",
+                "keyField": "key"
+			},
+            "dynUserAttributes": {
+                "awsAccessKey": "AKIAJBKL6PJRXHDZA5SA",
+                "awsSecretKey": "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",
+                "table": "experiments1",
+                "keyField": "key"
+            }
+		}
+	},
+	"maxMind":{
+		"city":"/opt/lot49/data/geo/maxmind/GeoIP2-City.mmdb",
+		"connectionType":"/opt/lot49/data/geo/maxmind/GeoIP2-Connection-Type.mmdb",
+		"domain":"/opt/lot49/data/geo/maxmind/GeoIP2-Domain.mmdb",
+		"isp":"/opt/lot49/data/geo/maxmind/GeoIP2-ISP.mmdb"
+	},	
+	"executorThreadPoolSize":4,
+	"userIdCookie":"odsp",
+	"jettyTracing":true,
+    "userSegmentsCache": {
+        "segmentsDb": "dynUserSegments"
+    },
+    "userAttributesCache": {
+        "mapDb": "dynUserAttributes"
+    },
+	"adCache":{
+		"ttlMinutes":600,
+		"dir":"src/it/resources/ads",
+		"shortTermDb":"shortTermRedis",
+        "pacing":{
+			"redis":{
+				"host":"localhost",
+				"port":6379,
+				"timeoutMillis":1000
+			},
+			"lockExpireSeconds":"60",
+			"unspentBudgetDisposition":"keep",
+			"budgetAllocationStrategy":"winRateBased",
+			"winRateTtlMinutes":60,
+			"messageTtlMinutes":1440,
+			"lockExpireSeconds":"10",
+			"winRateMin":0.01,
+			"effectiveWinRateIfLessThanMin":0.1
+		}
+		
+	},
+	"exchanges":{
+		"openx":{
+			"encryptionKey":"6AF5179E373E4BF6B125354C2FCA7679D1523F305B974053B83879826AD1CCFB",
+			"integrityKey":"6503152458AF4CDEA61EF699417FB98965DED58DE8494964BDD721F5E78E6598",
+			"winTimeout":600
+		},
+		"adx":{
+			"geoTable" : "/opt/lot49/data/geo/adx/geo-table.csv",
+			"encryptionKey":[
+				39,
+				64,
+				199,
+				123,
+				223,
+				216,
+				125,
+				24,
+				71,
+				120,
+				225,
+				123,
+				161,
+				128,
+				4,
+				23,
+				231,
+				38,
+				38,
+				185,
+				13,
+				41,
+				176,
+				179,
+				191,
+				243,
+				88,
+				247,
+				227,
+				80,
+				209,
+				105
+			],
+			"integrityKey":[
+				73,
+				139,
+				81,
+				59,
+				221,
+				62,
+				64,
+				175,
+				53,
+				236,
+				190,
+				154,
+				9,
+				27,
+				224,
+				132,
+				238,
+				127,
+				49,
+				232,
+				78,
+				25,
+				7,
+				146,
+				223,
+				40,
+				130,
+				122,
+				215,
+				226,
+				186,
+				200
+			]
+			
+		},
+		"bidswitch":{
+			"seatId":"89"
+		},
+		"liverail":{
+			"seatId":"113431"
+		},
+		"adaptv":{
+			"assumeSwfIfVpaid":true,
+			"defaultMaxDuration":30,
+			"buyerId":"inpagegroupllc"
+		},
+		"pubmatic" : { "vcode" : "bz0yJnR5cGU9MSZjb2RlPTMxNzkmdGw9MTI5NjAw"}
+		
+	}
+}

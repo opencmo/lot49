@@ -1,0 +1,71 @@
+package com.enremmeta.rtb.proto.adx;
+
+import com.codahale.metrics.MetricRegistry;
+import com.enremmeta.rtb.api.proto.openrtb.OpenRtbRequest;
+import com.enremmeta.rtb.api.proto.openrtb.OpenRtbResponse;
+import com.enremmeta.rtb.test.cases.ExchangeTest;
+import com.google.common.collect.ImmutableList;
+import com.google.doubleclick.util.DoubleClickMetadata;
+import com.google.doubleclick.util.DoubleClickValidator;
+import com.google.openrtb.OpenRtb;
+import com.google.protobuf.ByteString;
+import com.google.protos.adx.NetworkBid;
+import junit.framework.TestCase;
+
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+
+import com.enremmeta.rtb.Lot49Exception;
+import com.enremmeta.rtb.config.Lot49Config;
+import com.enremmeta.util.Utils;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+
+import java.io.File;
+import java.io.FileInputStream;
+
+public class AdxTest extends ExchangeTest {
+
+    @Test
+    public void testPriceDecryption() {
+        try {
+            Lot49Config config = (Lot49Config) Utils.loadConfig(System.getenv("LOT49_CONFIG"),
+                            Lot49Config.class);
+        } catch (Lot49Exception e) {
+            e.printStackTrace();
+            fail(e.getMessage());
+        }
+    }
+
+    @Test
+    public void test_parseRequest(){
+
+        try {
+            AdXAdapter adXAdapter = new AdXAdapter(true);
+            File adxRequestFile = getTestDataFile("adx" + File.separatorChar + "request1.json");
+            NetworkBid.BidRequest bidRequest = NetworkBid.BidRequest.parseFrom(new FileInputStream(adxRequestFile));
+            assertNotNull(bidRequest);
+            OpenRtbRequest req2 = adXAdapter.convertRequest(bidRequest);
+            assertNotNull(req2.getId(), "V8lMj+LT+OeDPvD38tusaw==");
+            assertNotNull(req2.getImp());
+            assertTrue(!req2.getImp().isEmpty());
+            assertNotNull(req2.getImp().get(0));
+            assertNotNull(req2.getImp().get(0).getExt());
+            assertTrue(!req2.getImp().get(0).getExt().isEmpty());
+            AdXTargeting adXTargeting = (AdXTargeting) req2.getImp().get(0).getExt().get("matching_ad_data");
+            assertNotNull(adXTargeting);
+            assertNotNull(adXTargeting.getAdGroupIds());
+            assertTrue(adXTargeting.getAdGroupIds().size() == 1);
+            assertNotNull(bidRequest.getAdslot(0));
+            assertNotNull(bidRequest.getAdslot(0).getMatchingAdData(0));
+            assertNotNull(bidRequest.getAdslot(0).getMatchingAdData(0).getBillingId(0));
+            assertEquals(adXTargeting.getAdGroupIds().get(0).longValue(), bidRequest.getAdslot(0).getMatchingAdData(0).getBillingId(0));
+        } catch (Throwable e) {
+            e.printStackTrace();
+            Assert.fail(e.getMessage());
+        }
+    }
+
+
+}

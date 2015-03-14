@@ -1,0 +1,821 @@
+//option java_package = "com.enremmeta.rtb.protobuf.brx";
+
+//BRX RTB PROTO
+//DATE: 7/10/2012
+//VERSION: 0.95
+//
+//This interface is based on Open RTB 2.1, part of the IAB RTB Project - http://www.iab.net/guidelines/rtbproject
+//
+//**************************************************  
+//IMPORTANT
+//Please refer to BRX's PDF documentation for more details on processing bid requests and constructing bid responses.
+//**************************************************
+//
+//BID REQUEST HEADERS
+//The Open RTB version the interface is based on will be passed in the HTTP header as the custom parameter "X-OPENRTB-VERSION"
+//The BRX API version will be passed in the HTTP header as the custom parameter "X-BR-RTB-VERSION"
+//
+//REQUIRED BID RESPONSE HEADERS
+//Content-Type - The HTTP Content-Type header must be set to application/octet-stream.//Connection - BRX does not currently support HTTP keep-alive/persistent connections. The HTTP Connection header must be set to close.//X-OPENRTB-VERSION - Per Open RTB’s requirement, set X-OPENRTB-VERSION to the version of Open RTB the bid response conforms to.//X-BR-RTB-VERSION - Set X-BR-RTB-VERSION to the version of the BRX RTB interface the bid response conforms to.
+
+enum ContentCategory {
+  //OPEN RTB ENUMERATION OF CONTENT TAXONOMY BASED ON IAB QUALITY ASSURANCE GUIDELINES
+  IAB0 = 0; // UNKNOWN
+  IAB1 = 1; // Arts & Entertainment
+  IAB1_1 = 2; // Books & Literature
+  IAB1_2 = 3; // Celebrity Fan/Gossip
+  IAB1_3 = 4; // Fine Art
+  IAB1_4 = 5; // Humor
+  IAB1_5 = 6; // Movies
+  IAB1_6 = 7; // Music
+  IAB1_7 = 8; // Television
+  IAB2 = 9; // Automotive
+  IAB2_1 = 10; // Auto Parts
+  IAB2_2 = 11; // Auto Repair
+  IAB2_3 = 12; // Buying/Selling Cars
+  IAB2_4 = 13; // Car Culture
+  IAB2_5 = 14; // Certified Pre-Owned
+  IAB2_6 = 15; // Convertible
+  IAB2_7 = 16; // Coupe
+  IAB2_8 = 17; // Crossover
+  IAB2_9 = 18; // Diesel
+  IAB2_10 = 19; // Electric Vehicle
+  IAB2_11 = 20; // Hatchback
+  IAB2_12 = 21; // Hybrid
+  IAB2_13 = 22; // Luxury
+  IAB2_14 = 23; // MiniVan
+  IAB2_15 = 24; // Motorcycles
+  IAB2_16 = 25; // Off-Road Vehicles
+  IAB2_17 = 26; // Performance Vehicles
+  IAB2_18 = 27; // Pickup
+  IAB2_19 = 28; // Road-Side Assistance
+  IAB2_20 = 29; // Sedan
+  IAB2_21 = 30; // Trucks & Accessories
+  IAB2_22 = 31; // Vintage Cars
+  IAB2_23 = 32; // Wagon
+  IAB3 = 33; // Business
+  IAB3_1 = 34; // Advertising
+  IAB3_2 = 35; // Agriculture
+  IAB3_3 = 36; // Biotech/Biomedical
+  IAB3_4 = 37; // Business Software
+  IAB3_5 = 38; // Construction
+  IAB3_6 = 39; // Forestry
+  IAB3_7 = 40; // Government
+  IAB3_8 = 41; // Green Solutions
+  IAB3_9 = 42; // Human Resources
+  IAB3_10 = 43; // Logistics
+  IAB3_11 = 44; // Marketing
+  IAB3_12 = 45; // Metals
+  IAB4 = 46; // Careers
+  IAB4_1 = 47; // Career Planning
+  IAB4_2 = 48; // College
+  IAB4_3 = 49; // Financial Aid
+  IAB4_4 = 50; // Job Fairs
+  IAB4_5 = 51; // Job Search
+  IAB4_6 = 52; // Resume Writing/Advice
+  IAB4_7 = 53; // Nursing
+  IAB4_8 = 54; // Scholarships
+  IAB4_9 = 55; // Telecommuting
+  IAB4_10 = 56; // U.S. Military
+  IAB4_11 = 57; // Career Advice
+  IAB5 = 58; // Education
+  IAB5_1 = 59; // 7-12 Education
+  IAB5_2 = 60; // Adult Education
+  IAB5_3 = 61; // Art History
+  IAB5_4 = 62; // College Administration
+  IAB5_5 = 63; // College Life
+  IAB5_6 = 64; // Distance Learning
+  IAB5_7 = 65; // English as a 2nd Language
+  IAB5_8 = 66; // Language Learning
+  IAB5_9 = 67; // Graduate School
+  IAB5_10 = 68; // Homeschooling
+  IAB5_11 = 69; // Homework/Study Tips
+  IAB5_12 = 70; // K-6 Educators
+  IAB5_13 = 71; // Private School
+  IAB5_14 = 72; // Special Education
+  IAB5_15 = 73; // Studying Business
+  IAB6 = 74; // Family & Parenting
+  IAB6_1 = 75; // Adoption
+  IAB6_2 = 76; // Babies & Toddlers
+  IAB6_3 = 77; // Daycare/Pre School
+  IAB6_4 = 78; // Family Internet
+  IAB6_5 = 79; // Parenting - K-6 Kids
+  IAB6_6 = 80; // Parenting teens
+  IAB6_7 = 81; // Pregnancy
+  IAB6_8 = 82; // Special Needs Kids
+  IAB6_9 = 83; // Eldercare
+  IAB7 = 84; // Health & Fitness
+  IAB7_1 = 85; // Exercise
+  IAB7_2 = 86; // A.D.D.
+  IAB7_3 = 87; // AIDS/HIV
+  IAB7_4 = 88; // Allergies
+  IAB7_5 = 89; // Alternative Medicine
+  IAB7_6 = 90; // Arthritis
+  IAB7_7 = 91; // Asthma
+  IAB7_8 = 92; // Autism/PDD
+  IAB7_9 = 93; // Bipolar Disorder
+  IAB7_10 = 94; // Brain Tumor
+  IAB7_11 = 95; // Cancer
+  IAB7_12 = 96; // Cholesterol
+  IAB7_13 = 97; // Chronic Fatigue Syndrome
+  IAB7_14 = 98; // Chronic Pain
+  IAB7_15 = 99; // Cold & Flu
+  IAB7_16 = 100; // Deafness
+  IAB7_17 = 101; // Dental Care
+  IAB7_18 = 102; // Depression
+  IAB7_19 = 103; // Dermatology
+  IAB7_20 = 104; // Diabetes
+  IAB7_21 = 105; // Epilepsy
+  IAB7_22 = 106; // GERD/Acid Reflux
+  IAB7_23 = 107; // Headaches/Migraines
+  IAB7_24 = 108; // Heart Disease
+  IAB7_25 = 109; // Herbs for Health
+  IAB7_26 = 110; // Holistic Healing
+  IAB7_27 = 111; // IBS/Crohn's Disease
+  IAB7_28 = 112; // Incest/Abuse Support
+  IAB7_29 = 113; // Incontinence
+  IAB7_30 = 114; // Infertility
+  IAB7_31 = 115; // Men's Health
+  IAB7_32 = 116; // Nutrition
+  IAB7_33 = 117; // Orthopedics
+  IAB7_34 = 118; // Panic/Anxiety Disorders
+  IAB7_35 = 119; // Pediatrics
+  IAB7_36 = 120; // Physical Therapy
+  IAB7_37 = 121; // Psychology/Psychiatry
+  IAB7_38 = 122; // Senior Health
+  IAB7_39 = 123; // Sexuality
+  IAB7_40 = 124; // Sleep Disorders
+  IAB7_41 = 125; // Smoking Cessation
+  IAB7_42 = 126; // Substance Abuse
+  IAB7_43 = 127; // Thyroid Disease
+  IAB7_44 = 128; // Weight Loss
+  IAB7_45 = 129; // Women's Health
+  IAB8 = 130; // Food & Drink
+  IAB8_1 = 131; // American Cuisine
+  IAB8_2 = 132; // Barbecues & Grilling
+  IAB8_3 = 133; // Cajun/Creole
+  IAB8_4 = 134; // Chinese Cuisine
+  IAB8_5 = 135; // Cocktails/Beer
+  IAB8_6 = 136; // Coffee/Tea
+  IAB8_7 = 137; // Cuisine-Specific
+  IAB8_8 = 138; // Desserts & Baking
+  IAB8_9 = 139; // Dining Out
+  IAB8_10 = 140; // Food Allergies
+  IAB8_11 = 141; // French Cuisine
+  IAB8_12 = 142; // Health/Lowfat Cooking
+  IAB8_13 = 143; // Italian Cuisine
+  IAB8_14 = 144; // Japanese Cuisine
+  IAB8_15 = 145; // Mexican Cuisine
+  IAB8_16 = 146; // Vegan
+  IAB8_17 = 147; // Vegetarian
+  IAB8_18 = 148; // Wine
+  IAB9 = 149; // Hobbies & Interests
+  IAB9_1 = 150; // Art/Technology
+  IAB9_2 = 151; // Arts & Crafts
+  IAB9_3 = 152; // Beadwork
+  IAB9_4 = 153; // Birdwatching
+  IAB9_5 = 154; // Board Games/Puzzles
+  IAB9_6 = 155; // Candle & Soap Making
+  IAB9_7 = 156; // Card Games
+  IAB9_8 = 157; // Chess
+  IAB9_9 = 158; // Cigars
+  IAB9_10 = 159; // Collecting
+  IAB9_11 = 160; // Comic Books
+  IAB9_12 = 161; // Drawing/Sketching
+  IAB9_13 = 162; // Freelance Writing
+  IAB9_14 = 163; // Genealogy
+  IAB9_15 = 164; // Getting Published
+  IAB9_16 = 165; // Guitar
+  IAB9_17 = 166; // Home Recording
+  IAB9_18 = 167; // Investors & Patents
+  IAB9_19 = 168; // Jewelry Making
+  IAB9_20 = 169; // Magic & Illusion
+  IAB9_21 = 170; // Needlework
+  IAB9_22 = 171; // Painting
+  IAB9_23 = 172; // Photography
+  IAB9_24 = 173; // Radio
+  IAB9_25 = 174; // Roleplaying Games
+  IAB9_26 = 175; // Sci-Fi & Fantasy
+  IAB9_27 = 176; // Scrapbooking
+  IAB9_28 = 177; // Screenwriting
+  IAB9_29 = 178; // Stamps & Coins
+  IAB9_30 = 179; // Video & Computer Games
+  IAB9_31 = 180; // Woodworking
+  IAB10 = 181; // Home & Garden
+  IAB10_1 = 182; // Appliances
+  IAB10_2 = 183; // Entertaining
+  IAB10_3 = 184; // Environmental Safety
+  IAB10_4 = 185; // Gardening
+  IAB10_5 = 186; // Home Repair
+  IAB10_6 = 187; // Home Theater
+  IAB10_7 = 188; // Interior Decorating
+  IAB10_8 = 189; // Landscaping
+  IAB10_9 = 190; // Remodeling & Construction
+  IAB11 = 191; // Law, Gov't & Politics
+  IAB11_1 = 192; // Immigration
+  IAB11_2 = 193; // Legal Issues
+  IAB11_3 = 194; // U.S. Government Resources
+  IAB11_4 = 195; // Politics
+  IAB11_5 = 196; // Commentary
+  IAB12 = 197; // News
+  IAB12_1 = 198; // International News
+  IAB12_2 = 199; // National News
+  IAB12_3 = 200; // Local News
+  IAB13 = 201; // Personal Finance
+  IAB13_1 = 202; // Beginning Investing
+  IAB13_2 = 203; // Credit/Debt & Loans
+  IAB13_3 = 204; // Financial News
+  IAB13_4 = 205; // Financial Planning
+  IAB13_5 = 206; // Hedge Fund
+  IAB13_6 = 207; // Insurance
+  IAB13_7 = 208; // Investing
+  IAB13_8 = 209; // Mutual Funds
+  IAB13_9 = 210; // Options
+  IAB13_10 = 211; // Retirement Planning
+  IAB13_11 = 212; // Stocks
+  IAB13_12 = 213; // Tax Planning
+  IAB14 = 214; // Society
+  IAB14_1 = 215; // Dating
+  IAB14_2 = 216; // Divorce Support
+  IAB14_3 = 217; // Gay Life
+  IAB14_4 = 218; // Marriage
+  IAB14_5 = 219; // Senior Living
+  IAB14_6 = 220; // Teens
+  IAB14_7 = 221; // Weddings
+  IAB14_8 = 222; // Ethnic Specific
+  IAB15 = 223; // Science
+  IAB15_1 = 224; // Astrology
+  IAB15_2 = 225; // Biology
+  IAB15_3 = 226; // Chemistry
+  IAB15_4 = 227; // Geology
+  IAB15_5 = 228; // Paranormal Phenomena
+  IAB15_6 = 229; // Physics
+  IAB15_7 = 230; // Space/Astronomy
+  IAB15_8 = 231; // Geography
+  IAB15_9 = 232; // Botany
+  IAB15_10 = 233; // Weather
+  IAB16 = 234; // Pets
+  IAB16_1 = 235; // Aquariums
+  IAB16_2 = 236; // Birds
+  IAB16_3 = 237; // Cats
+  IAB16_4 = 238; // Dogs
+  IAB16_5 = 239; // Large Animals
+  IAB16_6 = 240; // Reptiles
+  IAB16_7 = 241; // Veterinary Medicine
+  IAB17 = 242; // Sports
+  IAB17_1 = 243; // Auto Racing
+  IAB17_2 = 244; // Baseball
+  IAB17_3 = 245; // Bicycling
+  IAB17_4 = 246; // Bodybuilding
+  IAB17_5 = 247; // Boxing
+  IAB17_6 = 248; // Canoeing/Kayaking
+  IAB17_7 = 249; // Cheerleading
+  IAB17_8 = 250; // Climbing
+  IAB17_9 = 251; // Cricket
+  IAB17_10 = 252; // Figure Skating
+  IAB17_11 = 253; // Fly Fishing
+  IAB17_12 = 254; // Football
+  IAB17_13 = 255; // Freshwater Fishing
+  IAB17_14 = 256; // Game & Fish
+  IAB17_15 = 257; // Golf
+  IAB17_16 = 258; // Horse Racing
+  IAB17_17 = 259; // Horses
+  IAB17_18 = 260; // Hunting/Shooting
+  IAB17_19 = 261; // Inline Skating
+  IAB17_20 = 262; // Martial Arts
+  IAB17_21 = 263; // Mountain Biking
+  IAB17_22 = 264; // NASCAR Racing
+  IAB17_23 = 265; // Olympics
+  IAB17_24 = 266; // Paintball
+  IAB17_25 = 267; // Power & Motorcycles
+  IAB17_26 = 268; // Pro Basketball
+  IAB17_27 = 269; // Pro Ice Hockey
+  IAB17_28 = 270; // Rodeo
+  IAB17_29 = 271; // Rugby
+  IAB17_30 = 272; // Running/Jogging
+  IAB17_31 = 273; // Sailing
+  IAB17_32 = 274; // Saltwater Fishing
+  IAB17_33 = 275; // Scuba Diving
+  IAB17_34 = 276; // Skateboarding
+  IAB17_35 = 277; // Skiing
+  IAB17_36 = 278; // Snowboarding
+  IAB17_37 = 279; // Surfing/Bodyboarding
+  IAB17_38 = 280; // Swimming
+  IAB17_39 = 281; // Table Tennis/Ping-Pong
+  IAB17_40 = 282; // Tennis
+  IAB17_41 = 283; // Volleyball
+  IAB17_42 = 284; // Walking
+  IAB17_43 = 285; // Waterski/Wakeboard
+  IAB17_44 = 286; // World Soccer
+  IAB18 = 287; // Style & Fashion
+  IAB18_1 = 288; // Beauty
+  IAB18_2 = 289; // Body Art
+  IAB18_3 = 290; // Fashion
+  IAB18_4 = 291; // Jewelry
+  IAB18_5 = 292; // Clothing
+  IAB18_6 = 293; // Accessories
+  IAB19 = 294; // Technology & Computing
+  IAB19_1 = 295; // 3-D Graphics
+  IAB19_2 = 296; // Animation
+  IAB19_3 = 297; // Antivirus Software
+  IAB19_4 = 298; // C/C++
+  IAB19_5 = 299; // Cameras & Camcorders
+  IAB19_6 = 300; // Cell Phones
+  IAB19_7 = 301; // Computer Certification
+  IAB19_8 = 302; // Computer Networking
+  IAB19_9 = 303; // Computer Peripherals
+  IAB19_10 = 304; // Computer Reviews
+  IAB19_11 = 305; // Data Centers
+  IAB19_12 = 306; // Databases
+  IAB19_13 = 307; // Desktop Publishing
+  IAB19_14 = 308; // Desktop Video
+  IAB19_15 = 309; // Email
+  IAB19_16 = 310; // Graphics Software
+  IAB19_17 = 311; // Home Video/DVD
+  IAB19_18 = 312; // Internet Technology
+  IAB19_19 = 313; // Java
+  IAB19_20 = 314; // Javascript
+  IAB19_21 = 315; // Mac Support
+  IAB19_22 = 316; // MP3/MIDI
+  IAB19_23 = 317; // Net Conferencing
+  IAB19_24 = 318; // Net for Beginners
+  IAB19_25 = 319; // Network Security
+  IAB19_26 = 320; // Palmtops/PDAs
+  IAB19_27 = 321; // PC Support
+  IAB19_28 = 322; // Portable
+  IAB19_29 = 323; // Entertainment
+  IAB19_30 = 324; // Shareware/Freeware
+  IAB19_31 = 325; // Unix
+  IAB19_32 = 326; // Visual Basic
+  IAB19_33 = 327; // Web Clip Art
+  IAB19_34 = 328; // Web Design/HTML
+  IAB19_35 = 329; // Web Search
+  IAB19_36 = 330; // Windows
+  IAB20 = 331; // Travel
+  IAB20_1 = 332; // Adventure Travel
+  IAB20_2 = 333; // Africa
+  IAB20_3 = 334; // Air Travel
+  IAB20_4 = 335; // Australia & New Zealand
+  IAB20_5 = 336; // Bed & Breakfasts
+  IAB20_6 = 337; // Budget Travel
+  IAB20_7 = 338; // Business Travel
+  IAB20_8 = 339; // By US Locale
+  IAB20_9 = 340; // Camping
+  IAB20_10 = 341; // Canada
+  IAB20_11 = 342; // Caribbean
+  IAB20_12 = 343; // Cruises
+  IAB20_13 = 344; // Eastern Europe
+  IAB20_14 = 345; // Europe
+  IAB20_15 = 346; // France
+  IAB20_16 = 347; // Greece
+  IAB20_17 = 348; // Honeymoons/Getaways
+  IAB20_18 = 349; // Hotels
+  IAB20_19 = 350; // Italy
+  IAB20_20 = 351; // Japan
+  IAB20_21 = 352; // Mexico & Central America
+  IAB20_22 = 353; // National Parks
+  IAB20_23 = 354; // South America
+  IAB20_24 = 355; // Spas
+  IAB20_25 = 356; // Theme Parks
+  IAB20_26 = 357; // Traveling with Kids
+  IAB20_27 = 358; // United Kingdom
+  IAB21 = 359; // Real Estate
+  IAB21_1 = 360; // Apartments
+  IAB21_2 = 361; // Architects
+  IAB21_3 = 362; // Buying/Selling Homes
+  IAB22 = 363; // Shopping
+  IAB22_1 = 364; // Contests & Freebies
+  IAB22_2 = 365; // Couponing
+  IAB22_3 = 366; // Comparison
+  IAB22_4 = 367; // Engines
+  IAB23 = 368; // Religion & Spirituality
+  IAB23_1 = 369; // Alternative Religions
+  IAB23_2 = 370; // Atheism/Agnosticism
+  IAB23_3 = 371; // Buddhism
+  IAB23_4 = 372; // Catholicism
+  IAB23_5 = 373; // Christianity
+  IAB23_6 = 374; // Hinduism
+  IAB23_7 = 375; // Islam
+  IAB23_8 = 376; // Judaism
+  IAB23_9 = 377; // Latter-Day Saints
+  IAB23_10 = 378; // Paga/Wiccan
+  IAB24 = 379; // Uncategorized
+  IAB25 = 380; // Non-Standard Content
+  IAB25_1 = 381; // Unmoderated UGC
+  IAB25_2 = 382; // Extreme Graphic/Explicit Violence
+  IAB25_3 = 383; // Pornography
+  IAB25_4 = 384; // Profane Content
+  IAB25_5 = 385; // Hate Content
+  IAB25_6 = 386; // Under Construction
+  IAB25_7 = 387; // Incentivized
+  IAB26 = 388; // Illegal Content
+  IAB26_1 = 389; // Illegal Content
+  IAB26_2 = 390; // Warez
+  IAB26_3 = 391; // Spyware/Malware
+  IAB26_4 = 392; // Copyright Infringement
+}
+
+enum Protocol {
+  //BASED ON OPEN RTB 2.1 ENUMERATION TABLE 6.7
+  //List of standard video bid response protocols
+  VAST_1_0 = 1;
+  VAST_2_0 = 2;
+  VAST_3_0 = 3;
+  VAST_WRAPPER_1_0 = 4;
+  VAST_WRAPPER_2_0 = 5;
+  VAST_WRAPPER_3_0 = 6;
+}
+
+enum Api {
+  //BASED ON OPEN RTB 2.1 ENUMERATION TABLE 6.4 + CUSTOM VALUES
+  //List of API frameworks
+  //Values above position 100 represent BRX specific frameworks. These custom frameworks are used in environments where standards are still evolving (e.g., mobile, connected TV).
+  NONE = 0;
+  VPAID_1_0 = 1;
+  VPAID_2_0 = 2;
+  MRAID_1_0 = 3;
+  ORMMA = 4;
+  BR_HTML5_1_0 = 101;
+  BR_HTML5_2_0 = 102;
+}
+
+enum Pos {
+  //BASED ON OPEN RTB 2.1 ENUMERATION TABLE 6.5
+  //Values derived from the IAB Quality Assurance Guidelines (QAG)
+  //This enum specifies the position of the ad as a relative measure of visibility or prominence.
+  //Values 4-7 apply to native apps per the mobile addendum to version 1.5 of the QAG.
+  POSITION_UNKNOWN = 0;
+  ABOVE_THE_FOLD = 1;
+  VARIABLE = 2; //May be deprecated in Open RTB 2.1
+  BELOW_THE_FOLD = 3;
+  HEADER = 4;
+  FOOTER = 5;
+  SIDEBAR = 6;
+  FULLSCREEN = 7;
+}
+
+enum Linearity {
+  //BASED ON OPEN RTB 2.1 ENUMERATION TABLE 6.6
+  //Values derived from the IAB Quality Assurance Guidelines (QAG)
+  //Specifies the options for video linearity.
+  LINEAR = 1;
+  NON_LINEAR = 2;
+}
+
+enum Delivery {
+  //BASED ON OPEN RTB 2.1 ENUMERATION TABLE 6.12
+  STREAMING = 1;
+  PROGRESSIVE = 2;
+}
+
+enum Playbackmethod {
+  //BASED ON OPEN RTB 2.1 ENUMERATION TABLE 6.8
+  //Lists the various playback methods
+  //Derived from (but does not exactly mirror) the IAB Quality Assurance Guidelines (QAG)
+  AUTOPLAY_SOUND_ON = 1;
+  AUTOPLAY_SOUND_OFF = 2;
+  CLICK_TO_PLAY = 3;
+  MOUSE_OVER = 4;
+  PLAYBACK_METHOD_UNKNOWN = 5;
+}
+
+enum Companiontype {
+  //BASED ON OPEN RTB 2.1 ENUMERATION TABLE 6.17
+  //Values derived from the IAB's VAST specification
+  STATIC_RESOURCE = 1;
+  HTML_RESOURCE = 2;
+  IFRAME_RESOURCE = 3;
+}
+
+enum Context {
+  //BASED ON OPEN RTB 2.1 ENUMERATION TABLE 6.13
+  //Values derived from the IAB Quality Assurance Guidelines (QAG)
+  VIDEO = 1;
+  GAME = 2;
+  MUSIC = 3;
+  APPLICATION = 4;
+  TEXT = 5;
+  OTHER = 6;
+  CONTEXT_UNKNOWN = 7;
+}
+
+enum Qagmediarating {
+  //BASED ON OPEN RTB 2.1 ENUMERATION TABLE 6.18
+  //Values derived from the IAB Quality Assurance Guidelines (QAG)
+  MATURITY_RATING_UNKNOWN = 0;
+  ALL_AUDIENCES = 1;
+  EVERYONE_UNDER_12 = 2;
+  MATURE_AUDIENCES = 3;
+}
+
+enum GeoType {
+  //BASED ON OPEN RTB 2.1 ENUMERATION TABLE 6.15
+  GEOTYPE_UNKNOWN = 0;
+  GPS_LOCATION_SERVICES = 1;
+  IP_ADDRESS = 2;
+  USER_PROVIDED = 3;
+}
+
+enum ConnectionType {
+  //BASED ON OPEN RTB 2.1 ENUMERATION TABLE 6.10
+  CONNECTION_TYPE_UNKNOWN = 0;
+  ETHERNET = 1;
+  WIFI = 2;
+  CELLULAR_DATA_UNKNOWN_GENERATION = 3;
+  CELLULAR_DATA_2G = 4;
+  CELLULAR_DATA_3G = 5;
+  CELLULAR_DATA_4G = 6;
+}
+
+enum DeviceType {
+  //BASED ON OPEN RTB 2.1 ENUMERATION TABLE 6.13
+  //Values derived from the IAB Quality Assurance Guidelines (QAG)
+  DEVICE_TYPE_UNKNOWN = 0;
+  MOBILE_TABLET = 1;
+  PERSONAL_COMPUTER = 2;
+  CONNECTED_TV = 3;
+}
+
+enum InventoryClass {
+  //Custom BRX enumeration for inventory class
+  INVENTORYCLASS_UNKNOWN = 0;
+  REACH = 1;
+  PREMIUM = 2;
+  SUPERPREMIUM = 3;
+}
+
+enum Mimes {
+  //BRX SPECIFIC ENUM
+  //Specifies the potential mime types that may be supported by a given placement.
+  FLV = 0;
+  SHOCKWAVE_FLASH = 1;
+  MP4 = 2;
+  TEXT_HTML = 3;
+  JPG = 4;
+  GIF = 5;
+  PNG = 6;
+}
+
+enum State {
+  //BRX SPECIFIC ENUM
+  //This is the standard enum for communicating state information for yes/no/unknown fields.
+  STATE_UNKNOWN = 2;
+  NO = 0;
+  YES = 1;
+}
+
+enum AdType {
+  //BRX SPECIFIC ENUM
+  //Specifies the potential ad types that may be offered up for auction.  This value is expected in the bid response extension to identify which opportunity the bidder is responding to (per Open RTB, both video and banner opportunities may presented for a single impression).   
+  ADTYPE_VIDEO = 0;
+  ADTYPE_BANNER = 1;
+}
+
+message BidRequest {
+  //BASED ON OPEN RTB 2.1 BID REQUEST OBJECT
+  //Parent object for the bid request
+  optional string id = 1;  //Unique ID of the bid request, provided by the exchange.
+  optional int32 tmax = 2; //Maximum amount of time in milliseconds to submit a bid
+  repeated string wseat = 3; //Array of buyer seats allowed to bid on this auction
+  repeated ContentCategory bcat = 4; //Blocked Advertiser Categories.  Per Open RTB: Note that there is no existing categorization / taxonomy of advertiser industries. However, as a substitute exchanges may decide to use IAB categories as an approximation.
+  repeated string badv = 5; //Blocked top-level domains of advertisers.
+  optional Imp imp = 6;  //Impression object
+  optional Site site = 7;  //Site object -- typically included for websites.  Either a site or app object may be included – not both.  Neither is required.
+  optional App app = 8; //App object -- typically included for native apps.  Either a site or app object may be included – not both.  Neither is required.
+  optional Device device = 9; //This object describes the device the ad impression will be delivered to (e.g., mobile phone, computer, set top box, etc.) and its capabilities .
+  optional User user = 10; //This object describes the user, and may include unique identifiers for the user.
+  optional Ext ext = 11; //This object contains custom BRX extensions to the bid request
+
+  message Imp {
+    //BASED ON OPEN RTB 2.1 IMPRESSION OBJECT
+    //Child to BidRequest object
+    //The “imp” object describes the ad position or impression being auctioned.
+    optional string id = 1;  //A unique identifier for this impression within the context of the bid request
+    optional Banner banner = 2; //Either a banner or video object (or both if the impression could be either) must be included in an impression object.
+    optional Video video = 3;  //Either a banner or video object (or both if the impression could be either) must be included in an impression object.
+    optional bool instl = 4; //Defines if the ad is interstitial or full screen
+  }
+
+  message Video {
+    //BASED ON OPEN RTB 2.1 VIDEO OBJECT
+    //Child to "imp" object
+    //The “video” object must be included directly in the impression object if the impression offered for auction is an in-stream video ad opportunity.
+    repeated Mimes mimes = 1; //Content MIME types supported
+    optional Linearity linearity = 2; //Indicates whether the ad impression is linear or non-linear.
+    optional int32 minduration = 3;  //Minimum video ad duration in seconds
+    optional int32 maxduration = 4;  //Maximum video ad duration in seconds
+    repeated Protocol protocol = 5;  //Video bid response protocols supported
+    repeated Api api = 6;  //List of supported API frameworks for this impression
+    optional int32 w = 7; //Width of the player in pixels
+    optional int32 h = 8; //Height of the player in pixels
+    optional int32 startdelay = 9;  //Indicates the start delay in seconds for preroll, midroll, or postroll ad placement.  See Open RTB 2.1 Table 6.9 Video Start Delay for generic placement values.
+    optional int32 maxbitrate = 10;  //Maximum bit rate in Kbps.
+    repeated Playbackmethod playbackmethod = 11;  //Allowed playback methods
+    repeated Delivery delivery = 12;  //List of supported delivery methods (streaming, progressive).  If blank, assume all are supported.
+    optional Pos pos = 13;  //Ad position
+    repeated Companiontype companiontype = 14; //Describes companion resource types supported by the placement as defined by the IAB's VAST standard
+    repeated Banner companionad = 15;  //If companion ads are available for this impression, they are listed as banner objects
+  }
+
+  message Banner {
+    //BASED ON OPEN RTB 2.1 BANNER OBJECT
+    //Child to "imp" object for a banner opportunity
+    //Child to a "video" object as a companion opportunity
+    //A "banner" object must be included as a child of the "imp" object for display or rich media opportunities
+    //Both "video" and "banner" objects may be includedd as children of the "imp" object if the opportunity may be described as a banner or video impression
+    optional string id = 1;  //Optional unique identifier for this banner object. Useful for tracking multiple banner objects (e.g., in companion banner array).
+    optional int32 w = 2;  //Width of the impression in pixels.  Since some ad types are not restricted by size this field is not required, but it’s highly recommended that this information be included when possible.
+    optional int32 h = 3;  //Height of the impression in pixels.  Since some ad types are not restricted by size this field is not required, but it’s highly recommended that this information be included when possible.
+    optional Pos pos = 4;  //Ad position
+    repeated Mimes mimes = 5;  //Content MIME types supported
+    repeated Api api = 6;  //List of supported API frameworks for this banner impression
+    optional BanExt ext = 7;  //Custom BRX extensions for this banner object
+    message BanExt {
+      //BRX custom extension
+      //Will apply to future mobile HTML5 inventory
+      optional int32 minduration = 1;  //minimum duration for the impression in seconds
+      optional int32 maxduration = 2;  //maximum duration for the impression in seconds
+    }
+  }
+
+  message Site {
+    //BASED ON OPEN RTB 2.1 SITE OBJECT
+    //A site object should be included if the ad supported content is part of a website (as opposed to an application).  A bid request will not contain both a site object and an app object.  The site object itself and all of its parameters are optional. If a parameter is not specified, it should be considered unknown.
+    optional string id = 1;  //Site ID on the exchange
+    optional string name = 2;  //Site name (may be masked at publisher’s request)
+    optional string page = 3;  //URL of the page where the impression will be shown.  May not be available for all impressions.
+    repeated ContentCategory cat = 4;  //IAB c+ontent categories for the overall site
+    repeated ContentCategory sectioncat = 5;  //IAB content categories for the current subsection of the site
+    repeated ContentCategory pagecat = 6;  //IAB content categories for the current page
+    optional State privacypolicy = 7 [default = STATE_UNKNOWN];  //Specifies whether the site has a privacy policy
+    optional string ref = 8;  //Referrer URL that caused navigation to the current page
+    optional string search = 9;  //Search string that caused navigation to the current page
+    optional string keywords = 10;  //List of comma separated keywords describing the site
+    optional Content content = 11;  //Object describing the content of the site
+    optional Publisher publisher = 12;  //Object describing the site publisher
+    optional string domain = 13; //domain of the site (e.g., "foo.com")
+  }
+
+  message App {
+    //BASED ON OPEN RTB 2.1 APP OBJECT
+    //An “app” object should be included if the ad supported content is part of an application (e.g., mobile app) as opposed to a website.  A bid request must not contain both an “app” object and a “site” object.  The app object itself and all of its parameters are optional. If a parameter is not specified, it should be considered unknown
+    optional string id = 1;  //Application ID on the exchange
+    optional string name = 2;  //Application name (may be masked at publisher’s request).
+    optional string domain = 3;  //Domain of the application (e.g., “mygame.foo.com”)
+    repeated ContentCategory cat = 4;  //IAB content categories for the overall application
+    repeated ContentCategory sectioncat = 5;  //IAB content categories for the current subsection of the app
+    repeated ContentCategory pagecat = 6;  //IAB content categories for the current page/view of the app
+    optional State privacypolicy = 7 [default = STATE_UNKNOWN];  //Specifies whether the app has a privacy policy
+    optional string ver = 8;  //Application version
+    optional State paid = 9 [default = STATE_UNKNOWN];  //Specified whether the app is a paid app (no = free)
+    optional string bundle = 10; //Application bundle or package name (e.g., com.foo.mygame).  This is intended to be a unique ID across multiple exchanges
+    optional string keywords = 11;  //List of comma separated keywords describing this app 
+    optional string storeurl = 12;  //For QAG 1.5 compliance, an app store URL for an installed app should be passed in the bid request
+    optional Content content = 13;  //Object describing contents of the app
+    optional Publisher publisher = 14;  //Object describing the app publisher
+  }
+
+  message Content {
+    //BASED ON OPEN RTB 2.1 CONTENT OBJECT
+    //Child to "site" and "app" objects
+    //The content object itself and all of its parameters are optional.  If a parameter is not specified, it should be considered unknown.  This object describes the content against which the impression will appear.
+    optional string id = 1; //ID uniquely identifying the content
+    optional string title = 2; //Content title
+    optional string url = 3;  //Original URL of the content, for buy-side contextualization or review
+    optional string contentrating = 4;  //Content rating (e.g., MPAA)
+    repeated ContentCategory cat = 5; //IAB content categories for the content
+    optional string keywords = 6;  //List of comma separated keywords describing this app
+    optional Context context = 7;  //Specifies the type of content
+    optional int32 len = 8;  //Length of content (appropriate for video or audio) in seconds
+    optional Qagmediarating qagmediarating = 9 [default = MATURITY_RATING_UNKNOWN];  //Media rating of the content, per QAG guidelines
+    optional State embeddable = 10 [default = STATE_UNKNOWN];  //Can be content embedded or not (e.g., embeddable video player).  Based on QAG Video Addendum.
+    optional string language = 11;  //Language of the content using alpha-2/ISO 639-1 codes
+  }
+
+  message Publisher {
+    //BASED ON OPEN RTB 2.1 PUBLISHER OBJECT
+    //Child to Site and App objects
+    optional string id = 1;  //Publisher ID on the exchange
+    optional string name = 2;  //Publisher name (may be masked at publisher’s request).
+    optional ContentCategory cat = 3 [default = IAB0];  //IAB content categories for the publisher
+    optional string domain = 4;  //Publisher’s highest level domain name, for example “foopub.com”.
+  }
+
+  message Geo {
+    //BASED ON OPEN RTB 2.1 GEO OBJECT
+    //Child to Device and User objects
+    //Note that the Geo Object may appear in one or both the Device Object and the User Object.  This is intentional, since the information may be derived from either a device-oriented source (such as IP geo lookup), or by user registration information (for example provided to a publisher through a user registration).   If the information is in conflict, it’s up to the bidder to determine which information to use.
+    //The geo object itself and all of its parameters are optional.  If a parameter is not specified, it should be considered unknown.
+    optional float lat = 1;  //Latitude from -90 to 90. South is negative.   This will only be passed if known to be accurate.
+    optional float lon = 2;  //Longitude from -180 to 180. West is negative.  This will only be passed if known to be accurate.
+    optional string country = 3;  //Country using ISO-3166-1 Alpha-3
+    optional string region = 4;  //Region using ISO 3166-2
+    optional string regionfips104 = 5;  //Region of a country using fips 10-4 notation (alternative to ISO 3166-2)
+    optional string metro = 6;  //Metro code.  Metro codes are similar to but not exactly the same as Nielsen DMAs.
+    optional string city = 7;  //City using United Nations Code for Trade and Transport Locations (http://www.unece.org/cefact/locode/service/location.htm)
+    optional string zip = 8;  //Zip/postal code
+    optional GeoType type = 9 [default = GEOTYPE_UNKNOWN];  //Indicates the source of the geo data (GPS, IP address, user provided)
+  }
+
+
+  message Device {
+    //BASED ON OPEN RTB 2.1 DEVICE OBJECT
+    //Child to Imp object
+    //The “device” object provides information pertaining to the device including its hardware, platform, location, and carrier.  This device can refer to a mobile handset, a desktop computer, set top box or other digital device.  The device object itself and all of its parameters are optional.  If a parameter is not specified, it should be considered unknown.
+    optional State dnt = 1 [default = STATE_UNKNOWN];  //Identifies whether do not track is turn on in the browser
+    optional string ip = 2;  //IPv4 address closest to device
+    optional string carrier = 3;  //Carrier or ISP derived from the IP address.  Should be specified using Mobile Network Code (MNC) http://en.wikipedia.org/wiki/Mobile_Network_Code.
+    optional string ua = 4;  //Browser user agent string
+    optional string language = 5; //Browser language using alpha-2/ISO 639-1 codes
+    optional string make = 6; //Device make (e.g., “Apple”)
+    optional string model = 7;  //Device model (e.g., “iPhone”)
+    optional string os = 8;  //Device operating system (e.g., “iOS”)
+    optional string osv = 9;  //Device operating system version (e.g., “3.1.2”)
+    optional ConnectionType connectiontype = 10 [default = CONNECTION_TYPE_UNKNOWN];  //Type of internet connection for device
+    optional DeviceType devicetype = 11 [default = DEVICE_TYPE_UNKNOWN];    //Type of internet connection for device
+    optional Geo geo = 12;  //Geo data related to the device location
+    optional string ipv6 = 13;  //IP address in IPv6
+    optional string didsha1 = 14; //SHA1 hashed device ID; IMEI when available, else MEID or ESN.  OpenRTB’s preferred method for device ID hashing is SHA1.
+    optional string didmd5 = 15; //MD5 hashed device ID; IMEI when available, else MEID or ESN.  Should be interpreted as case insensitive.
+    optional string dpidsha1 = 16; //SHA1 hashed platform-specific ID (e.g., Android ID or UDID for iOS).  OpenRTB’s preferred method for device ID hash is SHA1.
+    optional string dpidmd5 = 17; //MD5 hashed platform-specific ID (e.g., Android ID or UDID for iOS).  Should be interpreted as case insensitive.
+  }
+
+  message User {
+    //BASED ON OPEN RTB 2.1 USER OBJECT
+    //Child to Imp object
+    //The “user” object contains information known or derived about the human user of the device.  Note that the user ID is an exchange artifact (refer to the “device” object for hardware or platform derived IDs) and may be subject to rotation policies.  The user object itself and all of its parameters are optional.  If a parameter is not specified, it should be considered unknown.
+    optional string id = 1;  //Unique ID of this user on the exchange
+    optional string buyeruid = 2;  //Buyer’s user ID for this user as mapped by exchange for the buyer
+    optional string yob = 3;  //Year of birth as a 4-digit integer
+    optional string gender = 4;  //Gender as “M” male, “F” female, “O” Other (Null indicates unknown)
+    optional Geo geo = 5;  //Home geo for the user (e.g., based off of registration data); this is different from the current location of the access device (that is defined by the geo object embedded in the Device Object)
+  }
+
+  message Ext {
+    //Custom BRX extension to the bid request
+    optional bool is_test = 1;  //Flag for test bid requests; we will accept the response, but we will not serve the ad
+    optional bool is_ping = 2;  //If true, bidder must respond with an HTTP 204 no content response as soon as possible without any ad decisioning
+    optional State is_skippable = 3 [default = STATE_UNKNOWN]; //Defines whether the inventory is skippable or not
+    optional int32 skip_offset = 4;  //If the inventory is skippable, what is the offset
+    optional bool is_fullscreenexpandable = 5;  //Is the ad expandable to fullscreen -- used for iPad expandable inventory
+    optional bool is_facebook = 6;  //Indicates if this a Facebook placement.  If ad is to be delivered to Facebook inventory, users must be able to provide feedback on your ad as stated in the Facebook terms and conditions
+    optional State is_incentivized = 7 [default = STATE_UNKNOWN];  //Indicates if the impression is delivered to incentivized inventory
+    optional State is_syndicated = 8 [default = STATE_UNKNOWN];  //Indicates if the impression is delivered to syndicated inventory
+    optional State is_ugc = 9 [default = STATE_UNKNOWN];  //Indicates if the impression is delivered to inventory with user generated content
+    optional int32 max_wrapper_redirects = 10;  //Maximum number of wrapper redirects allowed for your ad (initially, BRX will default to 1 -- longer term this will be dynamic based on publisher capabilities)
+    optional InventoryClass inventory_class = 11 [default = INVENTORYCLASS_UNKNOWN];  //Inventory class as defined by BRX
+  }
+}
+
+
+
+message BidResponse {
+  //The top-level bid response object is defined below.  The “id” attribute is a reflection of the bid request ID for logging purposes.  Similarly, “bidid” is an optional response tracking ID for bidders.  If specified, it can be included in the subsequent win notice call if the bidder wins.  At least one “seatbid” object is required, which contains a bid on at least one impression.  Other attributes are optional since an exchange may establish default values.
+  //IMPORTANT: No-Bids on all impressions should be indicated as a HTTP 204 response
+  //IMPORTANT: Please refer to BRX's PDF documentation for details on required and optional parameters in the bid response
+  optional string id = 1; //ID for the original bid request
+  optional string bidid = 2; //Bidder's bid ID
+  repeated SeatBid seatbid = 3;  //Seat bid object
+  optional string cur = 4; //BRX only supports USD -- return a value of "USD"
+
+  message SeatBid {
+    //An object to describe the winning bid for a given seat on the bidder’s platform. BRX currently only supports a single "seatbid" object in the bid response.
+    repeated Bid bid = 1; //Each "bid" object in the bid response should correspond with an "imp" object from the bid request
+    optional string seat = 2; //ID of the bidder seat on whose behalf this bid is made
+    optional bool group = 3 [default = false];  //Indicates whether impressions must be won-lost as a group
+  }
+
+  message Bid {
+    //For each bid, the VAST URL should be passed in the “nurl” field
+    //The request of the "nurl" informs the bidder of the win; the response must be VAST XML for the ad
+    //The "nurl" should include ##BRX_CLEARING_PRICE## assigned to a parameter to accept the winning price ratio.  BRX will replace this macro with the correct value.  Please refer to the PDF documentation for details on calculating the winning price.
+    optional string id = 1; //ID for the bid object chosen by the bidder for tracking and debugging purposes.  Useful when multiple bids are submitted for a single impression for a given seat.
+    optional string impid = 2; //ID of the Imp object from the bid request to which this bid applies.
+    optional float price = 3; //Bid price in CPM.  WARNING/Best Practice: Although this value is a float, OpenRTB strongly suggests using integer math for accounting to avoid rounding errors
+    optional string nurl = 4; //VAST URL. Bidders should add a random number or cache busting string to the VAST tag returned and include the BRX macro (##BRX_CLEARING_PRICE##) for winning price ratio replacement.  Please refer to the PDF documentation for details on calculating the winning price.
+    repeated string adomain = 5; //Advertiser’s primary or top-level domain(s) for advertiser checking.  This can be a list of domains if there is a rotating creative.  However, exchanges may mandate that only one landing domain is allowed.
+    optional string cid = 6; //Campaign ID or similar that appears within the ad markup
+    optional string crid = 7; //Creative ID for reporting content issues or defects.  This could also be used as a reference to a creative ID that is posted with an exchange.
+    optional BidExt ext = 8; //Custom BRX extensions to the bid response
+  }
+
+  message BidExt {
+    optional string campaign_name = 1;  //Friendly campaign name
+    optional string line_item_name = 2;  //Friendly line item name
+    optional string creative_name = 3;  //Friendly campaign name
+    optional int32 creative_duration = 4; //Duration of the creative returned in seconds
+    message MediaDesc {
+      optional Mimes media_mime = 1; //Mime of the media file associated with the returned creative
+      optional int32  media_bitrate = 2; //If the media file is a video, provide the associated bitrate
+    }
+    repeated MediaDesc media_desc = 5; //Include a MediaDesc message for each media file in the creative returned
+    optional Api api = 6; //API framework required by the returned creative
+    optional string lid = 7; //Line item ID of the returned creative
+    optional string landingpage_url = 8; //Landing page URL for the campaign
+    optional string advertiser_name = 9; //Advertiser name
+    repeated Companiontype companiontype = 10; //Companion types in the returned creative
+    optional AdType adtype = 11; //Define if the bid is for an impression opportunity defined by a "video" or "banner" object
+    optional int32 adserver_processing_time = 12; //The bidder's ad server processing time in milliseconds
+  }
+}

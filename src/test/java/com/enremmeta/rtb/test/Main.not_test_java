@@ -1,0 +1,18 @@
+package com.enremmeta.rtb.test;
+
+import com.enremmeta.util.Utils;
+
+public class Main {
+
+    public static void main(String[] argv) throws Exception {
+        String cook = Utils.createModUidCookie();
+        System.out.println(cook);
+        System.out.println(cook.length());
+        String cook2 = Utils.cookieToLogModUid(cook);
+        System.out.println(cook2);
+        String cook3 = Utils.logToCookieModUid(cook2);
+        System.out.println(cook3);
+
+    }
+
+}

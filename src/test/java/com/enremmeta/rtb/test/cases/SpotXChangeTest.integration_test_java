@@ -1,0 +1,101 @@
+package com.enremmeta.rtb.test.cases;
+
+import static org.junit.Assert.fail;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.client.Invocation.Builder;
+import javax.ws.rs.core.MediaType;
+
+import org.junit.Test;
+
+import com.enremmeta.rtb.api.proto.openrtb.OpenRtbResponse;
+import com.enremmeta.rtb.constants.Lot49Constants;
+
+public class SpotXChangeTest extends ExchangeTest {
+
+    @Test
+    public void testVanilla() {
+        try {
+            File f = getTestDataFile("spotxchange_req_vanilla.json");
+            String req = loadContents(f);
+
+            String url = testUtils.getConfig().getBaseUrl() + Lot49Constants.ROOT_PATH_AUCTIONS
+                            + "/" + Lot49Constants.EXCHANGE_SPOTXCHANGE;
+
+            System.out.println("Sending request to " + url);
+            Client client = ClientBuilder.newClient();
+            Builder builder = client.target(url).request(MediaType.APPLICATION_JSON)
+                            .accept(MediaType.APPLICATION_JSON);
+            System.out.println("Sending " + req + " to " + url);
+            OpenRtbResponse resp = builder.post(Entity.entity(req, MediaType.APPLICATION_JSON),
+                            OpenRtbResponse.class);
+            System.out.println(resp);
+
+            // System.out.println(seatBids);
+        } catch (Exception e) {
+            e.printStackTrace();
+            fail(e.getMessage());
+        }
+    }
+
+    @Test
+    public void testIntegrations() {
+        try {
+            File f = getTestDataFile("spotxint.txt");
+            BufferedReader br = new BufferedReader(new FileReader(f));
+            Client client = ClientBuilder.newClient();
+
+            while (true) {
+                String req = br.readLine();
+                if (req == null) {
+                    break;
+                }
+
+                String url = testUtils.getConfig().getBaseUrl() + Lot49Constants.ROOT_PATH_AUCTIONS
+                                + "/" + Lot49Constants.EXCHANGE_SPOTXCHANGE;
+
+                System.out.println("Sending request to " + url);
+                Builder builder = client.target(url).request(MediaType.APPLICATION_JSON)
+                                .accept(MediaType.APPLICATION_JSON);
+                System.out.println("Sending request to " + url);
+                OpenRtbResponse resp = builder.post(Entity.entity(req, MediaType.APPLICATION_JSON),
+                                OpenRtbResponse.class);
+            }
+            // System.out.println(seatBids);
+        } catch (Exception e) {
+            e.printStackTrace();
+            fail(e.getMessage());
+        }
+
+    }
+
+    @Test
+    public void xtestVpaid() {
+        try {
+            File f = getTestDataFile("spotxchange_req_vpaid.json");
+            String req = loadContents(f);
+
+            String url = testUtils.getConfig().getBaseUrl() + Lot49Constants.ROOT_PATH_AUCTIONS
+                            + "/" + Lot49Constants.EXCHANGE_SPOTXCHANGE;
+
+            System.out.println("Sending request to " + url);
+            Client client = ClientBuilder.newClient();
+            Builder builder = client.target(url).request(MediaType.APPLICATION_JSON)
+                            .accept(MediaType.APPLICATION_JSON);
+            System.out.println("Sending request to " + url);
+            OpenRtbResponse resp = builder.post(Entity.entity(req, MediaType.APPLICATION_JSON),
+                            OpenRtbResponse.class);
+
+            // System.out.println(seatBids);
+        } catch (Exception e) {
+            e.printStackTrace();
+            fail(e.getMessage());
+        }
+    }
+}

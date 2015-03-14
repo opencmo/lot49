@@ -1,0 +1,10 @@
+/bin/
+/target/
+/.idea/
+config/lot49.json
+*~
+**/*~
+log
+dump.rdb
+nohup.out
+/Lot49.iml

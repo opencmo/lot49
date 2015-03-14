@@ -1,0 +1,15 @@
+package com.enremmeta.rtb.api.caches;
+
+import com.enremmeta.rtb.test.cases.Lot49Test;
+
+import org.junit.Ignore;
+import org.junit.Test;
+
+public class UserCacheDaoImplTest extends Lot49Test {
+
+    @Ignore
+    @Test
+    public void updateBidsHistory() {
+
+    }
+}
